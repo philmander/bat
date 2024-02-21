@@ -274,7 +274,7 @@ export class BatWorld extends World {
     }
 }
 
-function reset() {
+function reset(scenario) {
     this.debug = []
     this.responseVars = []
     this.userVars = [
@@ -287,6 +287,7 @@ function reset() {
             value: Math.round(Math.random() * 1000),
         },
     ]
+    this.scenarioName = scenario.pickle.name;
 }
 
 async function printDebug(info) {

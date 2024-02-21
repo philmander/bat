@@ -1,6 +1,6 @@
 {
-  "name": "@returnista/bat",
-  "version": "2.0.0",
+  "name": "@philmander/bat",
+  "version": "1.1.1",
   "description": "A Gherkin based DSL for testing HTTP APIs via Cucumber.JS.",
   "main": "src/index.js",
   "type": "module",
@@ -22,11 +22,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:harver-bv/bat.git"
+    "url": "git@github.com:philmander/bat.git"
   },
   "author": "Phil Mander<philip@returnista.com>",
   "license": "MIT",
-  "homepage": "https://github.com/harver-bv/bat",
+  "homepage": "https://github.com/philmander/bat",
   "dependencies": {
     "ajv": "^8.12.0",
     "chai": "^5.1.0",

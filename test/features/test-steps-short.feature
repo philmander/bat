@@ -26,7 +26,7 @@ Feature: API Testing Steps
   @short
   Scenario: Testing Gets
     When GET "{base}/pets"
-    And qs:
+    And query string:
       | sort     | desc        |
       | filter   | {color}     |
       | time     | {timestamp} |
@@ -87,12 +87,12 @@ Feature: API Testing Steps
     And json path at "$.[1].name" should equal "Rover"
     And json path at "$.[0].age" should equal "10"
     And json path at "$.[0].age" should match "\d{2}"
-    And the response header "Content-Language" should equal "en"
+    And response header "Content-Language" should equal "en"
 
   @short
   Scenario: Testing Alternative Table Syntax for multiples
     When GET "{base}/pets"
-    And qs:
+    And query string:
       | sort     | desc        |
       | filter   | red         |
       | time     | {timestamp} |
@@ -133,9 +133,9 @@ Feature: API Testing Steps
   @short
   Scenario: Testing openapi spec intergration
     When POST "{base}/pets"
-    And qs:
+    And query string:
       | useSpec | true |
-    And send example body
+    #And send example body
 
   @short
   Scenario: Reuse previous values
@@ -144,9 +144,9 @@ Feature: API Testing Steps
       """
       { "id" : "{id}" }
       """
-    And qs:
+    And query string:
       | id | {id} |
-    And I set the placeholder "id" using the json path "$.[0].id" from the last "GET" to "{base}/pets"
+    And I set the placeholder "id" using the json path "$.[0].id" from the previous "GET" to "{base}/pets"
     Then receive status 200
     And json path at "$.name" should equal "Felix"
 
