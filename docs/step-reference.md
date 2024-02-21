@@ -32,6 +32,7 @@
     * [~printResponseBody()](#module_steps..printResponseBody)
 
 Given I am anonymous
+
 Explicitly state that the client is not authenticated (doesn't actually do anything).
 
 **Example**  
@@ -39,6 +40,7 @@ Explicitly state that the client is not authenticated (doesn't actually do anyth
 Given I am anonymous
 ```
 **Given** I am using **basic auth**entication **using** the credentials**:**
+
 Sets a base 64 encoded basic authentication header that is used on subsequent requests.
 
 **Example**  
@@ -48,6 +50,7 @@ Given basic auth using:
   | password | <password> |
 ```
 **Given** I am using **basic auth**entication **using credentials from: {string}*
+
 Sets a base 64 encoded basic authentication header that is used on subsequent requests using
 credentials obtained from a Postman-like environment file.
 
@@ -56,6 +59,7 @@ credentials obtained from a Postman-like environment file.
 Given basic auth using credentials from: "/path/to/user.json"
 ```
 **Given** I obtain an access token from {string} using the credentials:
+
 Supports logging into using OAuth2 credentials, typically with the password scheme.
 Sessions (access tokens) will be stored and supported for subsequent requests.
 
@@ -69,6 +73,7 @@ Given I **get** an access **token from "{base}/auth/token" using** the credentia
  | grant_type    | password  |
 ```
 **Given** I **get** an access **token from {string} using the credentials from: {string}**
+
 Supports logging into using OAuth2 credentials, typically with the password scheme
 Sessions (access tokens) will be stored and supported for subsequent requests
 
@@ -77,6 +82,7 @@ Sessions (access tokens) will be stored and supported for subsequent requests
 Given get token from "{base}/auth/token" using credentials from: "/path/to/user.json"
 ```
 **Given** I am using the **default content type: {string}**
+
 Set a default Content-Type header for future requests. This is useful
 as a step in a feature's "Background"
 
@@ -85,6 +91,7 @@ as a step in a feature's "Background"
 Given default content type: "application/json"
 ```
 **Given** I set the variables:
+
 Set variable key/value pairs which will be automatically be substitued before
 sending requests.
 
@@ -95,6 +102,7 @@ Given I set the variables:
 | name | Fido                 |
 ```
 **When** I send a **{string}** request to **{string}**
+
 Construct a request to a resource using an HTTP method
 Note: this should be the first "When"
 
@@ -106,6 +114,7 @@ When PUT "/pets/1234"
 When DELETE "/pets/1234"
 ```
 **When** I send the **GraphQL** query:
+
 Construct a GraphQL query
 
 **Example**  
@@ -122,15 +131,17 @@ When GraphQL:
 """
 ```
 **When** I add the **query string** parameters**:**
+
 Add query string paramaters defined in a Gherkin data table
 
-**Example** *(Short form)*  
+**Example**  
 ```js
 When query string:
  | sort   | desc |
  | filter | red  |
 ```
 **When** I **send** the request body**:**
+
 Add a JSON request body included in the Gherkin doc strings
 
 **Example**  
@@ -141,6 +152,7 @@ When send:
 """
 ```
 **When** I **send** a body with content type **{string}:**
+
 Add a request body included in the Gherkin doc strings or data table
 with a given content type
 
@@ -153,6 +165,7 @@ When send "form":
  | type | Snake |
 ```
 **When** I **send** the **example body**
+
 Adds a request body extracted from the open api spec for this request's resource and method.
 See the [test openapi.yaml](../test/openapi.yaml) for an example.
 
@@ -161,6 +174,7 @@ See the [test openapi.yaml](../test/openapi.yaml) for an example.
 When send example body
 ```
 **When** I **send** the request body **from** the **file: {string}**
+
 Add a request body loaded from a file.
 
 **Example**  
@@ -168,6 +182,7 @@ Add a request body loaded from a file.
 When send from file "/test/files/json/sample-json"
 ```
 **When** I **set** the request headers:
+
 Set one or more request headers in a single step.
 
 **Example**  
@@ -177,6 +192,7 @@ When set:
   | Accept-Language  | en               |
 ```
 **When** I **set** the **cookies:**
+
 Sets one or more cookies on the request using a data table.
 
 **Example**  
@@ -199,6 +215,7 @@ to populate the placeholder to get a specific pet resource:
 And I set the placeholder 'id' using the json path '$.[0].id' from the last 'GET' to '/pets'
 ```
 **Then** I should **receive** the **status {int}**
+
 Ensure the response was received with a given status.
 This should always be the first "Then" assertion.
 
@@ -215,6 +232,7 @@ To assert the associated Location header use the appropriate separate step
 Then receive status 200
 ```
 **Then** I should receive a response **within {int}ms**
+
 Ensure the response was received within a time limit. For slow netork connections
 use the LATENCY_BUFFER environment variable to increas this uniformly for all scenarios.
 
@@ -232,6 +250,7 @@ The quick brown fox
 """
 ```
 **Then** the response header {string} should equal {string}
+
 Ensure a response header equals the expect value
 
 **Example**  
@@ -239,6 +258,7 @@ Ensure a response header equals the expect value
 Then the response header "Content-Type" should equal "application/json"
 ```
 **Then** the response body **json path at {string} should equal {string}**
+
 Ensure a JSON response body equals a given value at the JSON path. Equality is determined
 using `==` so giving value "10" will equal the number 10 in JSON.
 See [http://goessner.net/articles/JsonPath/](http://goessner.net/articles/JsonPath/)
@@ -248,6 +268,7 @@ See [http://goessner.net/articles/JsonPath/](http://goessner.net/articles/JsonPa
 Then json path at "$.[1].name" should equal "Rover"
 ```
 **Then** the response body **json path at {string} should match {string}**
+
 Ensure a JSON response body at the given JSON path, matches a regular expression.
 n.b. For simpliciy, Bat variables in regular expressions are not subsituted.
 See [http://goessner.net/articles/JsonPath/](http://goessner.net/articles/JsonPath/)
@@ -257,6 +278,7 @@ See [http://goessner.net/articles/JsonPath/](http://goessner.net/articles/JsonPa
 Then json path at "$.[1].age" should match "\d+"
 ```
 **Then** the response body **json path at {string} should be empty**
+
 Ensure the JSON path is empty.
 See [http://goessner.net/articles/JsonPath/](http://goessner.net/articles/JsonPath/)
 See [https://www.chaijs.com/api/bdd/#method_empty](https://www.chaijs.com/api/bdd/#method_empty)
@@ -282,10 +304,6 @@ validate the current response body against it
 
 **Example**  
 ```js
-Then the response body should validate against its response schema
-```
-**Example** *(Short form)*  
-```js
 Then validate against schema
 ```
 **Then** the response body should validate against the response schema:
@@ -295,13 +313,6 @@ response body against. Generally not recommend because this can make the
 feature file very verbose.
 
 **Example**  
-```js
-Then the response body should validate against the response schema:
-"""
-{ ... }
-"""
-```
-**Example** *(Short form)*  
 ```js
 Then validate against the schema:
 """
@@ -313,10 +324,6 @@ Then validate against the schema:
 This will load a response body json schemea from a file
 
 **Example**  
-```js
-Then the response body should validate against the schema from "./path/to/schema.json"
-```
-**Example** *(Short form)*  
 ```js
 Then validate against the schema from "./path/to/schema.json"
 ```

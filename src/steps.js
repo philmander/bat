@@ -25,6 +25,7 @@ function registerSteps({ Given, When, Then }) {
 
     /**
      * Given I am anonymous
+     * 
      * Explicitly state that the client is not authenticated (doesn't actually do anything).
      *
      * @example
@@ -36,6 +37,7 @@ function registerSteps({ Given, When, Then }) {
 
     /**
      * **Given** I am a {string}
+     * 
      * Setting a user role allows you to reuse sessions, bearer tokens etc across
      * scenarios without needing re-authenticate each time. Under the hood this is storing
      * a collection of SuperAgent agents.
@@ -44,6 +46,7 @@ function registerSteps({ Given, When, Then }) {
 
     /**
      * **Given** I am using **basic auth**entication **using** the credentials**:**
+     * 
      * Sets a base 64 encoded basic authentication header that is used on subsequent requests.
      *
      * @example
@@ -57,6 +60,7 @@ function registerSteps({ Given, When, Then }) {
 
     /**
      * **Given** I am using **basic auth**entication **using credentials from: {string}*
+     * 
      * Sets a base 64 encoded basic authentication header that is used on subsequent requests using
      * credentials obtained from a Postman-like environment file.
      * 
@@ -69,6 +73,7 @@ function registerSteps({ Given, When, Then }) {
 
     /**
      * **Given** I obtain an access token from {string} using the credentials:
+     * 
      * Supports logging into using OAuth2 credentials, typically with the password scheme.
      * Sessions (access tokens) will be stored and supported for subsequent requests.
      *
@@ -86,6 +91,7 @@ function registerSteps({ Given, When, Then }) {
 
     /**
      * **Given** I **get** an access **token from {string} using the credentials from: {string}**
+     * 
      * Supports logging into using OAuth2 credentials, typically with the password scheme
      * Sessions (access tokens) will be stored and supported for subsequent requests
 
@@ -99,6 +105,7 @@ function registerSteps({ Given, When, Then }) {
 
     /**
      * **Given** I am using the **default content type: {string}**
+     * 
      * Set a default Content-Type header for future requests. This is useful
      * as a step in a feature's "Background"
      *
@@ -111,6 +118,7 @@ function registerSteps({ Given, When, Then }) {
 
     /**
      * **Given** I set the variables:
+     * 
      * Set variable key/value pairs which will be automatically be substitued before
      * sending requests.
      *
@@ -130,6 +138,7 @@ function registerSteps({ Given, When, Then }) {
 
     /**
      * **When** I send a **{string}** request to **{string}**
+     * 
      * Construct a request to a resource using an HTTP method
      * Note: this should be the first "When"
      *
@@ -146,6 +155,7 @@ function registerSteps({ Given, When, Then }) {
 
     /**
      * **When** I send the **GraphQL** query:
+     * 
      * Construct a GraphQL query
      * 
      * @example 
@@ -166,9 +176,10 @@ function registerSteps({ Given, When, Then }) {
 
     /**
      * **When** I add the **query string** parameters**:**
+     * 
      * Add query string paramaters defined in a Gherkin data table
      *
-     * @example <caption>Short form</caption>
+     * @example
      * When query string:
      *  | sort   | desc |
      *  | filter | red  |
@@ -179,6 +190,7 @@ function registerSteps({ Given, When, Then }) {
 
     /**
      * **When** I **send** the request body**:**
+     * 
      * Add a JSON request body included in the Gherkin doc strings
      *
      * @example
@@ -193,6 +205,7 @@ function registerSteps({ Given, When, Then }) {
 
     /**
      * **When** I **send** a body with content type **{string}:**
+     * 
      * Add a request body included in the Gherkin doc strings or data table
      * with a given content type
      *
@@ -209,6 +222,7 @@ function registerSteps({ Given, When, Then }) {
 
     /**
      * **When** I **send** the **example body**
+     * 
      * Adds a request body extracted from the open api spec for this request's resource and method.
      * See the [test openapi.yaml](../test/openapi.yaml) for an example.
      *
@@ -221,6 +235,7 @@ function registerSteps({ Given, When, Then }) {
 
     /**
      * **When** I **send** the request body **from** the **file: {string}**
+     * 
      * Add a request body loaded from a file.
      *
      * @example 
@@ -232,6 +247,7 @@ function registerSteps({ Given, When, Then }) {
 
     /**
      * **When** I **set** the request headers:
+     * 
      * Set one or more request headers in a single step.
 
      * @example
@@ -245,6 +261,7 @@ function registerSteps({ Given, When, Then }) {
 
     /**
      * **When** I **set** the **cookies:**
+     * 
      * Sets one or more cookies on the request using a data table.
      *
      * @example
@@ -281,6 +298,7 @@ function registerSteps({ Given, When, Then }) {
 
     /**
      * **Then** I should **receive** the **status {int}**
+     * 
      * Ensure the response was received with a given status.
      * This should always be the first "Then" assertion.
      *
@@ -301,6 +319,7 @@ function registerSteps({ Given, When, Then }) {
 
     /**
      * **Then** I should receive a response **within {int}ms**
+     * 
      * Ensure the response was received within a time limit. For slow netork connections
      * use the LATENCY_BUFFER environment variable to increas this uniformly for all scenarios.
      *
@@ -326,6 +345,7 @@ function registerSteps({ Given, When, Then }) {
 
     /**
      * **Then** the response header {string} should equal {string}
+     * 
      * Ensure a response header equals the expect value
      *
      * @example
@@ -337,6 +357,7 @@ function registerSteps({ Given, When, Then }) {
 
     /**
      * **Then** the response body **json path at {string} should equal {string}**
+     * 
      * Ensure a JSON response body equals a given value at the JSON path. Equality is determined
      * using `==` so giving value "10" will equal the number 10 in JSON.
      * See [http://goessner.net/articles/JsonPath/](http://goessner.net/articles/JsonPath/)
@@ -350,6 +371,7 @@ function registerSteps({ Given, When, Then }) {
 
     /**
      * **Then** the response body **json path at {string} should match {string}**
+     * 
      * Ensure a JSON response body at the given JSON path, matches a regular expression.
      * n.b. For simpliciy, Bat variables in regular expressions are not subsituted.
      * See [http://goessner.net/articles/JsonPath/](http://goessner.net/articles/JsonPath/)
@@ -363,6 +385,7 @@ function registerSteps({ Given, When, Then }) {
 
     /**
      * **Then** the response body **json path at {string} should be empty**
+     * 
      * Ensure the JSON path is empty.
      * See [http://goessner.net/articles/JsonPath/](http://goessner.net/articles/JsonPath/)
      * See [https://www.chaijs.com/api/bdd/#method_empty](https://www.chaijs.com/api/bdd/#method_empty)
@@ -394,17 +417,11 @@ function registerSteps({ Given, When, Then }) {
      * This will extract the response body json schemea from the Open API spec and
      * validate the current response body against it
      *
-     * @example
-     * Then the response body should validate against its response schema
-     *
-     * @example <caption>Short form</caption>
+     * @example 
      * Then validate against schema
      *
      * @function validateAgainstSpecSchema
      */
-    //Then('the response body should validate against its schema', fn.validateAgainstSpecSchema);
-
-    // short form
     //Then('validate against schema', fn.validateAgainstSpecSchema);
 
     /**
@@ -415,12 +432,6 @@ function registerSteps({ Given, When, Then }) {
      * feature file very verbose.
      *
      * @example
-     * Then the response body should validate against the response schema:
-     * """
-     * { ... }
-     * """
-     *
-     * @example <caption>Short form</caption>
      * Then validate against the schema:
      * """
      * { ... }
@@ -428,9 +439,6 @@ function registerSteps({ Given, When, Then }) {
      *
      * @function validateAgainstInlineSchema
      */
-    //Then('the response body should validate against the schema:', fn.validateAgainstInlineSchema);
-
-    // short form
     //Then('validate against the schema:', fn.validateAgainstInlineSchema);
 
     /**
@@ -438,16 +446,11 @@ function registerSteps({ Given, When, Then }) {
      *
      * This will load a response body json schemea from a file
      *
-     * @example
-     * Then the response body should validate against the schema from "./path/to/schema.json"
-     *
-     * @example <caption>Short form</caption>
+     * @example 
      * Then validate against the schema from "./path/to/schema.json"
      *
      * @function validateAgainstFileSchema
      */
-    //Then('the response body should validate against the schema from {string}', fn.validateAgainstFileSchema);
-
     //Then('validate against the schema from {string}', fn.validateAgainstFileSchema);
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
