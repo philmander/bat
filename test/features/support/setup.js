@@ -12,18 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-const url = require('url');
-const http = require('http');
-const { setWorldConstructor, After, AfterAll, Before, BeforeAll, Given, When, Then } = require('cucumber');
-const { registerHooks, World: BaseWorld, registerSteps } = require('../../../src/index');
+import { readFileSync } from 'node:fs'
+import http from 'node:http';
+import url from 'node:url'
 
-class World extends BaseWorld {
-    constructor() {
-        super();
-    }
-}
+import { setWorldConstructor, After, AfterAll, Before, BeforeAll, Given, When, Then } from '@cucumber/cucumber'
 
-setWorldConstructor(World);
+import { registerHooks, registerSteps, BatWorld } from '../../../src/index.js';
+
+setWorldConstructor(BatWorld);
 registerHooks({ After, AfterAll, Before, BeforeAll });
 registerSteps({ Given, Then, When });
 
@@ -50,7 +47,10 @@ Given('I am logged in as a {string}', async function (role) {
 });
 
 AfterAll(function (done) {
-    const options = url.parse(require('../../env/dev.json').values.find(val => val.key === 'base').value);
+    const fileUrl = new URL('../../env/dev.json', import.meta.url);
+    const optionsJson = JSON.parse(readFileSync(fileUrl, 'utf8'));
+
+    const options = url.parse(optionsJson.values.find(val => val.key === 'base').value);
     const req = http.request({ ...options, path: '/reset' }, () => done());
     req.end();
 });

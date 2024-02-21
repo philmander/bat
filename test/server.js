@@ -12,14 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-const express = require('express');
-const session = require('express-session');
-const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
-const auth = require('basic-auth');
-const { equal, deepEqual, AssertionError } = require('assert');
-const graphqlHTTP = require('express-graphql');
-const schema = require('./graphql/schemas');
+import { equal, deepEqual, AssertionError } from 'assert';
+
+import auth from 'basic-auth';
+import bodyParser from 'body-parser';
+import cookieParser from 'cookie-parser';
+import express from 'express';
+import session from 'express-session';
+import { createHandler } from 'graphql-http/lib/use/express';
+
+import schema from './graphql/schemas/index.js';
+
 
 const app = express();
 
@@ -151,7 +154,7 @@ app.get('/secret/:username', function (req, res, next) {
     }
 });
 
-app.post('/my-login', (req, res, next) => {
+app.post('/my-login', (req, res) => {
     const userToRole = {
         phil: 'admin',
         gerald: 'user',
@@ -165,7 +168,7 @@ app.post('/my-login', (req, res, next) => {
     res.send();
 });
 
-app.get('/session/secret', function (req, res, next) {
+app.get('/session/secret', function (req, res) {
     const sessionSecrets = {
         'admin': 'pipistrelle',
         'user': 'barbastelle',
@@ -195,7 +198,7 @@ app.get('/reset', function (req, res) {
     res.send();
 });
 
-app.get('/redirect/:code', function (req, res, next) {
+app.get('/redirect/:code', function (req, res) {
     const { code } = req.params;
     console.log(`Sending redirect: ${code}`);
 
@@ -209,16 +212,14 @@ app.get('/error/:code', function (req, res, next) {
     next(err);
 });
 
+// eslint-disable-next-line no-unused-vars 
 app.use((err, req, res, next) => {
     console.warn(`Assertion error: ${err.message}`);
     res.status(err instanceof AssertionError ? 418 : (err.status || 500));
     res.send({ message: err.message });
 });
 
-app.use('/graphql', graphqlHTTP({
-    schema,
-    graphiql: true,
-}));
+app.use('/graphql', createHandler({ schema }));
 
 const port = 3000;
 app.listen(port, () => {

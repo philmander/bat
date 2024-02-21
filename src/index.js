@@ -12,7 +12,5 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-module.exports = {
-    ...require('./world'),
-    ...require('./steps'),
-};
+export * from './world.js'
+export * from './steps.js'

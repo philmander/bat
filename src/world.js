@@ -12,67 +12,72 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-const { readFileSync } = require('fs');
-const { isAbsolute, join, resolve } = require('path');
-const { parse: parseUrl } = require('url');
-const chalk = require('chalk');
-const request = require('superagent');
-const SwaggerParser = require('swagger-parser');
+import { readFileSync } from 'fs'
+import { isAbsolute, join, resolve } from 'path'
+import { parse as parseUrl } from 'url'
+
+import { World } from '@cucumber/cucumber'
+import chalk from 'chalk'
+import request from 'superagent'
+import SwaggerParser from 'swagger-parser'
+
+const fileUrl = new URL('../package.json', import.meta.url)
+const packageJson = JSON.parse(readFileSync(fileUrl, 'utf8'))
+const { version } = packageJson
 
 const agents = new Map();
 const responseCache = new Map();
 const getResponseCacheKey = (path, method, status) => `${path};${method};${status}`;
 
-const { version } = require('../package.json');
-
-let apiSepc = null;
+let apiSepc = null
 
 /** @module World */
 
 /**
  * State and stateful utilities can be shared between steps using an instance of "World"
  */
-class World {
-    constructor(...params) {
-        this._req = null;
-        this._currentAgent = this.newAgent();
-        this.defaultContentType = 'application/json';
+export class BatWorld extends World {
+    constructor(opts) {
+        super(opts)
+        this._req = null
+        this._currentAgent = this.newAgent()
+        this.defaultContentType = 'application/json'
 
         // Provide a base url for all relative paths.
         // Using a variable: `{base}/foo` is preferred though
-        this._baseUrl = process.env.BASE_URL || '';
-        this._baseGraphQLUrl = process.env.GRAPHQL_BASE_URL || '';
-        this._latencyBuffer = process.env.LATENCY_BUFFER ? parseInt(process.env.LATENCY_BUFFER, 10) : 0;
+        this._baseUrl = process.env.BASE_URL || ''
+        this._baseGraphQLUrl = process.env.GRAPHQL_BASE_URL || ''
+        this._latencyBuffer = process.env.LATENCY_BUFFER ? parseInt(process.env.LATENCY_BUFFER, 10) : 0
         if (isNaN(this._latencyBuffer)) {
-            throw new Error(`process.env.LATENCY_BUFFER is not an integer (${process.env.LATENCY_BUFFER})`);
+            throw new Error(`process.env.LATENCY_BUFFER is not an integer (${process.env.LATENCY_BUFFER})`)
         }
 
-        const envFile = process.env.ENV_FILE || null;
-        this.envVars = envFile ? JSON.parse(readFileSync(resolve(process.cwd(), envFile))).values : [];
-        this.env = process.env.TEST_ENV || null;
-        this.responseVars = [];
-        this.userVars = [];
+        const envFile = process.env.ENV_FILE || null
+        this.envVars = envFile ? JSON.parse(readFileSync(resolve(process.cwd(), envFile))).values : []
+        this.env = process.env.TEST_ENV || null
+        this.responseVars = []
+        this.userVars = []
     }
 
     /**
      * Getter for the `baseUrl` used for all requests
      */
     get baseUrl() {
-        return this._baseUrl;
+        return this._baseUrl
     }
 
     /**
      * Getter for the `baseGraphQLUrl` used for all requests
      */
     get baseGraphQLUrl() {
-        return this._baseGraphQLUrl;
+        return this._baseGraphQLUrl
     }
 
     /**
      * Getter for the currently active Superagent request object
      */
     get req() {
-        return this._req;
+        return this._req
     }
 
     /**
@@ -80,8 +85,8 @@ class World {
      */
     set req(val) {
         // TODO: make this configurable
-        val.timeout({ response: 60000, deadline: 90000 });
-        this._req = val;
+        val.timeout({ response: 60000, deadline: 90000 })
+        this._req = val
     }
 
     /**
@@ -89,13 +94,13 @@ class World {
      */
     get apiSpec() {
         if (!apiSepc) {
-            throw new Error('No API spec is loaded. This assertion cannot be performed.');
+            throw new Error('No API spec is loaded. This assertion cannot be performed.')
         }
-        return apiSepc;
+        return apiSepc
     }
 
     get latencyBuffer() {
-        return this._latencyBuffer;
+        return this._latencyBuffer
     }
 
     /**
@@ -103,7 +108,7 @@ class World {
      * Reuse this agent in step definitions to preserve client sessions
      */
     get currentAgent() {
-        return this._currentAgent;
+        return this._currentAgent
     }
 
     /**
@@ -111,17 +116,17 @@ class World {
      * Reuse this agent in step definitions to preserve client sessions
      */
     set currentAgent(agent) {
-        this._currentAgent = agent;
+        this._currentAgent = agent
     }
 
     /**
      * Creates and returns a new SuperAgent agent
      */
     newAgent() {
-        const agent = request.agent();
-        agent._bat = {};
-        agent.set('User-Agent', `harver/behavioral-api-tester/${version}`);
-        return agent;
+        const agent = request.agent()
+        agent._bat = {}
+        agent.set('User-Agent', `behavioral-api-tester/${version}`)
+        return agent
     }
 
     /**
@@ -129,7 +134,7 @@ class World {
      * @param {string} role The role, such as 'admin'
      */
     getAgentByRole(role) {
-        return agents.get(role);
+        return agents.get(role)
     }
 
     /**
@@ -138,39 +143,39 @@ class World {
      * @param {*} agent
      */
     setAgentByRole(role, agent) {
-        this._currentAgent = agent;
-        agents.set(role, agent);
+        this._currentAgent = agent
+        agents.set(role, agent)
     }
 
     /**
      * Get part of the Open API spec for just a single endpoint (resource + method)
      */
     async getEndpointSpec() {
-        const { originalUrl, url, method } = this.req;
-        let { pathname } = parseUrl(originalUrl || url);
-        pathname = decodeURI(pathname);
+        const { originalUrl, url, method } = this.req
+        let { pathname } = parseUrl(originalUrl || url)
+        pathname = decodeURI(pathname)
 
         // we want to keep variables in the pathname so they can be looked up,
         // but need to remove the host name variable if any:
         if (!pathname.startsWith('/')) {
-            const tmpParts = pathname.split('/');
-            tmpParts.shift();
-            pathname = `/${tmpParts.join('/')}`.trim();
+            const tmpParts = pathname.split('/')
+            tmpParts.shift()
+            pathname = `/${tmpParts.join('/')}`.trim()
         }
 
         try {
-            return this.apiSpec.paths[pathname][method.toLowerCase()];
+            return this.apiSpec.paths[pathname][method.toLowerCase()]
         } catch (err) {
-            console.warn(`Could not find "${method.toLowerCase()}:${pathname}" in the provided api spec (${err.message})`);
-            return {};
+            console.warn(`Could not find "${method.toLowerCase()}:${pathname}" in the provided api spec (${err.message})`)
+            return {}
         }
     }
 
     async setBasicAuth(credentials) {
-        const { username, password } = credentials;
-        const agent = this.currentAgent;
-        const encodedCredentials = Buffer.from(`${username}:${password}`).toString('base64');
-        agent.set('Authorization', `Basic ${encodedCredentials}`);
+        const { username, password } = credentials
+        const agent = this.currentAgent
+        const encodedCredentials = Buffer.from(`${username}:${password}`).toString('base64')
+        agent.set('Authorization', `Basic ${encodedCredentials}`)
     }
 
     /**
@@ -179,7 +184,7 @@ class World {
      * @param {*} credentials
      */
     async getOAuthAccessToken(url, credentials) {
-        const agent = this.currentAgent;
+        const agent = this.currentAgent
 
         // do an oauth2 login
         // only set the bearer token once on the agent
@@ -187,18 +192,18 @@ class World {
             const res = await agent
                 .post(this.baseUrl + this.replaceVars(url))
                 .type('form')
-                .send(credentials);
+                .send(credentials)
 
             // get the access token from the response body
-            const getAccessToken = body => body.accessToken || body.access_token;
+            const getAccessToken = body => body.accessToken || body.access_token
             if (!getAccessToken(res.body)) {
                 // no access token received.
-                throw new Error(`Could not authenticate with OAuth2:\n\t${res.body}`);
+                throw new Error(`Could not authenticate with OAuth2:\n\t${res.body}`)
             }
 
-            agent._bat.bearer = getAccessToken(res.body);
+            agent._bat.bearer = getAccessToken(res.body)
         }
-        agent.set('Authorization', `Bearer ${agent._bat.bearer}`);
+        agent.set('Authorization', `Bearer ${agent._bat.bearer}`)
     }
 
     /**
@@ -208,18 +213,18 @@ class World {
      * @param {*} val
      */
     replaceVars(val) {
-        const vars = [].concat(this.responseVars).concat(this.userVars).concat(this.envVars);
+        const vars = [].concat(this.responseVars).concat(this.userVars).concat(this.envVars)
         if (!val) {
-            return val;
+            return val
         }
 
         // cheeky way to easily replace on whole objects:
-        const placeHolders = vars.map(pair => pair.key).join('|');
-        const regex = new RegExp(`{(${placeHolders})}`, 'g');
+        const placeHolders = vars.map(pair => pair.key).join('|')
+        const regex = new RegExp(`{(${placeHolders})}`, 'g')
         return JSON.parse(JSON.stringify(val).replace(regex, (match, p1) => {
-            const matchPair = vars.find(pair => pair.key === p1);
-            return matchPair ? matchPair.value : match;
-        }));
+            const matchPair = vars.find(pair => pair.key === p1)
+            return matchPair ? matchPair.value : match
+        }))
     }
 
     /**
@@ -228,14 +233,14 @@ class World {
      */
     replaceVariablesInitiator() {
         return req => {
-            req.originalUrl = this.originalUrl || req.url;
-            req.url = this.replaceVars(req.url);
-            req.qs = this.replaceVars(req.qs);
-            req.header = this.replaceVars(req.header);
-            req.cookies = this.replaceVars(req.cookies);
-            req._data = this.replaceVars(req._data);
-            return req;
-        };
+            req.originalUrl = this.originalUrl || req.url
+            req.url = this.replaceVars(req.url)
+            req.qs = this.replaceVars(req.qs)
+            req.header = this.replaceVars(req.header)
+            req.cookies = this.replaceVars(req.cookies)
+            req._data = this.replaceVars(req._data)
+            return req
+        }
     }
 
     /**
@@ -244,18 +249,18 @@ class World {
      * @param {} res A Superagent response object
      */
     async getResponse() {
-        return await this.req.ok(res => true);
+        return await this.req.ok(() => true)
     }
 
     /**
      * Save the current response so its values can be used for future requests
      */
     async saveCurrentResponse() {
-        const res = await this.getResponse();
-        const { url, method } = this.req;
-        const status = res.status.toString();
-        const cacheKey = getResponseCacheKey((this.originalUrl || url).split('?')[0], method, status);
-        responseCache.set(cacheKey, res.body);
+        const res = await this.getResponse()
+        const { url, method } = this.req
+        const status = res.status.toString()
+        const cacheKey = getResponseCacheKey((this.originalUrl || url).split('?')[0], method, status)
+        responseCache.set(cacheKey, res.body)
     }
 
     /**
@@ -265,13 +270,13 @@ class World {
      * @param {*} status The response status, defaults to 200
      */
     retrieveResponse(resource, method, status = 200) {
-        return responseCache.get(getResponseCacheKey(resource, method, status));
+        return responseCache.get(getResponseCacheKey(resource, method, status))
     }
 }
 
 function reset() {
-    this.debug = [];
-    this.responseVars = [];
+    this.debug = []
+    this.responseVars = []
     this.userVars = [
         {
             key: 'timestamp',
@@ -281,31 +286,31 @@ function reset() {
             key: 'randomInt',
             value: Math.round(Math.random() * 1000),
         },
-    ];
+    ]
 }
 
 async function printDebug(info) {
-    const sep = chalk.magenta.bold(new Array(80).fill('*').join(''));
+    const sep = chalk.magenta.bold(new Array(80).fill('*').join(''))
     if (this.debug.length) {
-        console.log('\n' + sep + '\n');
+        console.log('\n' + sep + '\n')
         for (const line of this.debug) {
-            console.log(line);
+            console.log(line)
         }
-        console.log('\n' + sep + '\n');
+        console.log('\n' + sep + '\n')
     }
     if (info.result.status === 'failed') {
-        let res;
+        let res
         try {
-            res = await this.req;
+            res = await this.req
         } catch (err) {
-            res = err.response;
+            res = err.response
         } finally {
-            console.log('\n' + sep + '\n');
-            console.log('Url:\n');
-            console.log(this.req.url);
-            console.log('\nResponse body:\n');
-            console.log(res.body);
-            console.log('\n' + sep + '\n');
+            console.log('\n' + sep + '\n')
+            console.log('Url:\n')
+            console.log(this.req.url)
+            console.log('\nResponse body:\n')
+            console.log(res.body)
+            console.log('\n' + sep + '\n')
         }
 
     }
@@ -313,23 +318,20 @@ async function printDebug(info) {
 
 async function loadApiSpec() {
     // load an open api spec
-    const specFile = process.env.API_SPEC_FILE || null;
+    const specFile = process.env.API_SPEC_FILE || null
     if (specFile) {
-        const specFilePath = isAbsolute(specFile) ? specFile : join(process.cwd(), specFile);
+        const specFilePath = isAbsolute(specFile) ? specFile : join(process.cwd(), specFile)
         try {
-            apiSepc = await SwaggerParser.validate(specFilePath);
-            console.log(`API Spec loaded from: ${specFile}`);
+            apiSepc = await SwaggerParser.validate(specFilePath)
+            console.log(`API Spec loaded from: ${specFile}`)
         } catch (err) {
-            console.warn(err.message);
+            console.warn(err.message)
         }
     }
 }
 
-module.exports = {
-    World,
-    registerHooks: function ({ BeforeAll, Before, After }) {
-        BeforeAll(loadApiSpec);
-        Before(reset);
-        After(printDebug);
-    },
-};
+export function registerHooks({ BeforeAll, Before, After }) {
+    BeforeAll(loadApiSpec)
+    Before(reset)
+    After(printDebug)
+}

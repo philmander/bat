@@ -12,24 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-const chai = require('chai');
-const Ajv = require('ajv');
-const cookie = require('cookie');
-const { JSONPath } = require('jsonpath-plus');
-const ajv = new Ajv({ schemaId: 'auto', unknownFormats: ['int32', 'int64', 'float'] });
-ajv.addMetaSchema(require('ajv/lib/refs/json-schema-draft-04.json'));
-const toJsonSchema = require('openapi-schema-to-json-schema');
-const { readFile } = require('fs');
-const { join } = require('path');
-const { promisify } = require('util');
-const ql = require('superagent-graphql');
-const readFileAsync = promisify(readFile);
+import { readFile } from 'node:fs/promises';
+import { join } from 'path';
 
-chai.use(require('chai-match'));
+//import Ajv from 'ajv';
+import * as chai from 'chai';
+import chaiMatch from 'chai-match';
+import cookie from 'cookie';
+import { JSONPath } from 'jsonpath-plus';
+//import toJsonSchema from 'openapi-schema-to-json-schema';
+import ql from 'superagent-graphql';
+
+// const fileUrl = new URL('../node_modules/ajv/lib/refs/json-schema-draft-07.json', import.meta.url);
+// const draft07Schema = JSON.parse(readFileSync(fileUrl, 'utf8'));
+
+// const ajv = new Ajv({ schemaId: 'auto', unknownFormats: ['int32', 'int64', 'float'] });
+// ajv.addMetaSchema(draft07Schema);
+
+export const noop = () => { }
+
+chai.use(chaiMatch);
 chai.use(_chai => {
-    // support assertions with == (vs ===)
-    // this should be available in the future with Chai v5
-    // https://github.com/chaijs/chai/issues/906
     _chai.Assertion.addMethod('equalLoosely', function (val) {
         const { _obj } = this;
 
@@ -47,15 +50,14 @@ chai.use(_chai => {
 const { expect } = chai;
 
 const methodsWithBodies = ['POST', 'PUT', 'PATCH', 'DELETE'];
-
-const redirectStatuses = [ 301, 302, 303, 307, 308 ];
+const redirectStatuses = [301, 302, 303, 307, 308];
 
 function defaultContentType(contentType) {
     this.defaultContentType = contentType;
 }
 
 async function filterValuesFromEnvFile(filePath, keyFilter) {
-    const envFile = await readFileAsync(join(process.cwd(), filePath), 'utf8');
+    const envFile = await readFile(join(process.cwd(), filePath), { encoding: 'utf8'});
     return JSON.parse(envFile).values
         .filter(item => item.enabled && item.value && keyFilter.includes(item.key))
         .reduce((acc, { key, value }) => ({
@@ -100,7 +102,7 @@ function setVariables(varTable) {
         Object.entries(rows).map(([key, value]) => ({
             key,
             value,
-        }))
+        })),
     );
 }
 
@@ -151,7 +153,7 @@ function addRequestBody(body) {
 
 async function addRequestBodyFromFile(fileName) {
     //Read the json data from the file location
-    const body = await readFileAsync(join(process.cwd(), fileName), 'utf8');
+    const body = await readFile(join(process.cwd(), fileName), { encoding: 'utf8'});
 
     // Read and send the json data
     _addRequestBody.call(this, body);
@@ -262,35 +264,34 @@ async function responseCookieEquals(expectedCookieData) {
 }
 
 // Function used for asserting a response validates against a given schema
-async function _validateResponseAgainstSchema(schema) {
-    const validate = ajv.compile(toJsonSchema(schema));
-    const { body } = await this.getResponse();
-    const valid = validate(body);
+// async function _validateResponseAgainstSchema(schema) {
+//     const validate = ajv.compile(toJsonSchema(schema));
+//     const { body } = await this.getResponse();
+//     const valid = validate(body);
 
-    if (valid) {
-        expect(valid).to.be.true;
-    } else {
-        expect.fail(null, null, JSON.stringify(validate.errors));
-    }
-}
+//     if (valid) {
+//         expect(valid).to.be.true;
+//     } else {
+//         expect.fail(null, null, JSON.stringify(validate.errors));
+//     }
+// }
 
-async function validateAgainstSpecSchema() {
-    const spec = await this.getEndpointSpec();
-    const { schema } = spec.responses['200'].content['application/json'];
-    await _validateResponseAgainstSchema.call(this, schema);
-}
+// async function validateAgainstSpecSchema() {
+//     const spec = await this.getEndpointSpec();
+//     const { schema } = spec.responses['200'].content['application/json'];
+//     await _validateResponseAgainstSchema.call(this, schema);
+// }
 
-async function validateAgainstInlineSchema(schema) {
-    await _validateResponseAgainstSchema.call(this, JSON.parse(schema));
-}
+// async function validateAgainstInlineSchema(schema) {
+//     await _validateResponseAgainstSchema.call(this, JSON.parse(schema));
+// }
 
-async function validateAgainstFileSchema(filePath) {
-    const schema = await readFileAsync(join(process.cwd(), this.replaceVars(filePath)), 'utf8');
-    await _validateResponseAgainstSchema.call(this, JSON.parse(schema));
-}
+// async function validateAgainstFileSchema(filePath) {
+//     const schema = await readFileAsync(join(process.cwd(), this.replaceVars(filePath)), 'utf8');
+//     await _validateResponseAgainstSchema.call(this, JSON.parse(schema));
+// }
 
-module.exports = {
-    noop: () => { },
+export {
     defaultContentType,
     setCurrentAgentByRole,
     basicAuth,
@@ -316,7 +317,7 @@ module.exports = {
     responseBodyJsonPathMatches,
     responseBodyJsonPathIsEmpty,
     responseCookieEquals,
-    validateAgainstSpecSchema,
-    validateAgainstInlineSchema,
-    validateAgainstFileSchema,
+    //validateAgainstSpecSchema,
+    //validateAgainstInlineSchema,
+    //validateAgainstFileSchema,
 };

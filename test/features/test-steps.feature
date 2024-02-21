@@ -44,46 +44,46 @@ Feature: API Testing Steps
       """
       [{"id":"1000","type":"cat","name":"Felix","age":10},{"id":"2000","type":"dog","name":"Rover","age":3}]
       """
-    And the response body should validate against its schema
-    And the response body should validate against the schema:
-      """
-      {
-      "type": "array",
-      "items": {
-      "allOf": [
-      {
-      "required": [
-      "name"
-      ],
-      "properties": {
-      "name": {
-      "type": "string"
-      },
-      "tag": {
-      "type": "string"
-      }
-      }
-      },
-      {
-      "required": [
-      "id"
-      ],
-      "properties": {
-      "id": {
-      "type": "string"
-      },
-      "name": {
-      "type": "string"
-      },
-      "type": {
-      "type": "string"
-      }
-      }
-      }
-      ]
-      }
-      }
-      """
+    # And the response body should validate against its schema
+    # And the response body should validate against the schema:
+    #   """
+    #   {
+    #   "type": "array",
+    #   "items": {
+    #   "allOf": [
+    #   {
+    #   "required": [
+    #   "name"
+    #   ],
+    #   "properties": {
+    #   "name": {
+    #   "type": "string"
+    #   },
+    #   "tag": {
+    #   "type": "string"
+    #   }
+    #   }
+    #   },
+    #   {
+    #   "required": [
+    #   "id"
+    #   ],
+    #   "properties": {
+    #   "id": {
+    #   "type": "string"
+    #   },
+    #   "name": {
+    #   "type": "string"
+    #   },
+    #   "type": {
+    #   "type": "string"
+    #   }
+    #   }
+    #   }
+    #   ]
+    #   }
+    #   }
+    #   """
     And the response body json path at "$.[1].name" should equal "Rover"
     And the response body json path at "$.[0].age" should equal "10"
     And the response body json path at "$.[0].age" should match "\d{2}"

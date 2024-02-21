@@ -1,4 +1,4 @@
-const graphql = require('graphql');
+import graphql from 'graphql'
 
 class Pet {
 
@@ -67,7 +67,9 @@ const Mutation = new GraphQLObjectType({
     },
 });
 
-module.exports = new GraphQLSchema({
+const schemas =  new GraphQLSchema({
     query: RootQuery,
     mutation: Mutation,
 });
+
+export default schemas

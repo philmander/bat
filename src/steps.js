@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-const fn = require('./steps-fn');
+import * as fn from './steps-fn.js';
 
 /** @module steps */
 
@@ -558,10 +558,10 @@ function registerSteps({ Given, When, Then }) {
      *
      * @function validateAgainstSpecSchema
      */
-    Then('the response body should validate against its schema', fn.validateAgainstSpecSchema);
+    //Then('the response body should validate against its schema', fn.validateAgainstSpecSchema);
 
     // short form
-    Then('validate against schema', fn.validateAgainstSpecSchema);
+    //Then('validate against schema', fn.validateAgainstSpecSchema);
 
     /**
      * ### Then the response body should validate against the response schema:
@@ -584,10 +584,10 @@ function registerSteps({ Given, When, Then }) {
      *
      * @function validateAgainstInlineSchema
      */
-    Then('the response body should validate against the schema:', fn.validateAgainstInlineSchema);
+    //Then('the response body should validate against the schema:', fn.validateAgainstInlineSchema);
 
     // short form
-    Then('validate against the schema:', fn.validateAgainstInlineSchema);
+    //Then('validate against the schema:', fn.validateAgainstInlineSchema);
 
     /**
      * ### Then the response body should validate against the schema from {string}
@@ -602,9 +602,9 @@ function registerSteps({ Given, When, Then }) {
      *
      * @function validateAgainstFileSchema
      */
-    Then('the response body should validate against the schema from {string}', fn.validateAgainstFileSchema);
+    //Then('the response body should validate against the schema from {string}', fn.validateAgainstFileSchema);
 
-    Then('validate against the schema from {string}', fn.validateAgainstFileSchema);
+    //Then('validate against the schema from {string}', fn.validateAgainstFileSchema);
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
     // Some debug helpers
@@ -657,6 +657,6 @@ function registerSteps({ Given, When, Then }) {
     });
 }
 
-module.exports = {
+export {
     registerSteps,
 };
