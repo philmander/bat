@@ -1,6 +1,6 @@
 {
   "name": "@philmander/bat",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "A Gherkin based DSL for testing HTTP APIs via Cucumber.JS.",
   "main": "src/index.js",
   "type": "module",
@@ -22,7 +22,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:philmander/bat.git"
+    "url": "git+ssh://git@github.com/philmander/bat.git"
   },
   "author": "Phil Mander<philip@returnista.com>",
   "license": "MIT",
