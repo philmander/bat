@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.1.0](https://github.com/philmander/bat/compare/v2.0.2...v2.1.0) (2024-02-28)
+
+
+### Features
+
+* Save Oauth responses from Given steps so they can be used for setting placeholder variables ([704c915](https://github.com/philmander/bat/commit/704c9158a6a03b015a96c7a80440bffeb09a9fc7))
+
+
+### Bug Fixes
+
+* Replace variable placeholders when setting cookie values ([9c0c83e](https://github.com/philmander/bat/commit/9c0c83eb173e689f38a7e7ce4c2928fc3e2f9c1d))
+
 ### [2.0.2](https://github.com/philmander/bat/compare/v2.0.1...v2.0.2) (2024-02-21)
 
 
