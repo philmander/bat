@@ -170,7 +170,7 @@ function setRequestCookies(tableData) {
     const cookies = tableData.hashes();
     for (const cookie of cookies) {
         const { Name: name, Value: value, Flags: flags } = cookie;
-        this.req.set('Cookie', `${name}=${value}${flags ? `;${flags}` : ''}`);
+        this.req.set('Cookie', `${name}=${this.replaceVars(value)}${flags ? `;${flags}` : ''}`);
     }
 }
 
