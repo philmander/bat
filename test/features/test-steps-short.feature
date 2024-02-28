@@ -19,7 +19,7 @@ Feature: API Testing Steps
 
   Background: Anonymous usage
     Given I am anonymous
-    Given I set the variables:
+    Given set the variables:
       | color | red |
       | lang  | nl  |
 
@@ -146,7 +146,7 @@ Feature: API Testing Steps
       """
     And query string:
       | id | {id} |
-    And I set the placeholder "id" using the json path "$.[0].id" from the previous "GET" to "{base}/pets"
+    And set the variable "id" using the json path "$.[0].id" from the previous "GET" to "{base}/pets"
     Then receive status 200
     And json path at "$.name" should equal "Felix"
 
@@ -169,14 +169,22 @@ Feature: API Testing Steps
   @oauth
   Scenario: Testing OAuth support for Gerald 1
     Given I am a "Gerald"
+    Given set the variables:
+      | user | gerald    |
     Given get token from "{base}/auth/token" using:
       | client_id | 123    |
-      | username  | gerald |
+      | username  | {user} |
     When GET "{base}/secret/gerald"
     Then receive status 201
     Then print the response body
 
-  @short
+  @oauth  
+  Scenario: Test accessing variables from oauth 
+    Given set the variable "foo" using the json path "$.foo" from the previous "POST" to "{base}/auth/token"
+    # this must resolve to GET "{base}/auth/bar123"
+    When GET "{base}/auth/{foo}"
+    Then receive status 204
+
   @oauth
   Scenario: Testing OAuth support for Gerald 1
     Given I am a "Gerald"
@@ -189,7 +197,6 @@ Feature: API Testing Steps
     Then receive status 201
     Then print the response body
 
-  @short
   @auth
   Scenario: Testing basic authentication
     Given basic auth using:
@@ -198,14 +205,13 @@ Feature: API Testing Steps
     When GET "{base}/basic/auth/test"
     Then receive status 200
 
-  @short
+
   @basicauth
   Scenario: Testing basic authentication
     Given basic auth using credentials from: "./test/env/dev.json"
     When GET "{base}/basic/auth/test"
     Then receive status 200
 
-  @short
   Scenario: Testing get all pets graphql query
     When GraphQL:
       """

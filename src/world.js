@@ -192,7 +192,9 @@ export class BatWorld extends World {
             const res = await agent
                 .post(this.baseUrl + this.replaceVars(url))
                 .type(type)
-                .send(credentials)
+                .send(this.replaceVars(credentials))
+
+                this.saveResponse({ method: 'POST', url }, res)
 
             // get the access token from the response body
             const getAccessToken = body => body.accessToken || body.access_token
@@ -256,8 +258,15 @@ export class BatWorld extends World {
      * Save the current response so its values can be used for future requests
      */
     async saveCurrentResponse() {
-        const res = await this.getResponse()
-        const { url, method } = this.req
+        this.saveResponse(this.req, await this.getResponse())
+    }
+
+
+    /**
+     * Save a response so its values can be used for future requests
+     */
+    async saveResponse(req, res) {
+        const { url, method } = req
         const status = res.status.toString()
         const cacheKey = getResponseCacheKey((this.originalUrl || url).split('?')[0], method, status)
         responseCache.set(cacheKey, res.body)

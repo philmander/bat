@@ -133,6 +133,7 @@ app.post('/auth/token', function (req, res, next) {
     if (tokens[req.body.username]) {
         return res.json({
             accessToken: tokens[req.body.username],
+            foo: 'bar123', // used for next test
         });
     }
     res.status(401);
@@ -140,6 +141,12 @@ app.post('/auth/token', function (req, res, next) {
         msg: 'Access denied',
     });
 
+});
+
+app.get('/auth/bar123', function (req, res) {
+    // test that the value foo: bar from the oauth token request cna be subsequently set as a variable
+    // (this endpoint just needs to exist and match the value of "foo" from the oauth response body)
+    res.sendStatus(204);
 });
 
 app.get('/secret/:username', function (req, res, next) {
