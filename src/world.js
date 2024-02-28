@@ -208,6 +208,13 @@ export class BatWorld extends World {
         agent.set('Authorization', `Bearer ${agent._bat.bearer}`)
     }
 
+    setUserVar(key, value) {
+        this.userVars.push({
+            key,
+            value
+        })
+    }
+
     /**
      * Replace placeholders in a value with variables currently stored from
      * environemtn config and previous responses.
