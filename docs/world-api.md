@@ -20,6 +20,7 @@
         * [.replaceVariablesInitiator()](#module_World.BatWorld+replaceVariablesInitiator)
         * [.getResponse(res)](#module_World.BatWorld+getResponse)
         * [.saveCurrentResponse()](#module_World.BatWorld+saveCurrentResponse)
+        * [.saveResponse()](#module_World.BatWorld+saveResponse)
         * [.retrieveResponse(resource, method, status)](#module_World.BatWorld+retrieveResponse)
 
 <a name="module_World.BatWorld"></a>
@@ -46,6 +47,7 @@ State and stateful utilities can be shared between steps using an instance of "W
     * [.replaceVariablesInitiator()](#module_World.BatWorld+replaceVariablesInitiator)
     * [.getResponse(res)](#module_World.BatWorld+getResponse)
     * [.saveCurrentResponse()](#module_World.BatWorld+saveCurrentResponse)
+    * [.saveResponse()](#module_World.BatWorld+saveResponse)
     * [.retrieveResponse(resource, method, status)](#module_World.BatWorld+retrieveResponse)
 
 <a name="module_World.BatWorld+baseUrl"></a>
@@ -174,6 +176,12 @@ JSON from JSON responses that have an incorrect 'text/html' content type.
 
 #### batWorld.saveCurrentResponse()
 Save the current response so its values can be used for future requests
+
+**Kind**: instance method of [<code>BatWorld</code>](#module_World.BatWorld)  
+<a name="module_World.BatWorld+saveResponse"></a>
+
+#### batWorld.saveResponse()
+Save a response so its values can be used for future requests
 
 **Kind**: instance method of [<code>BatWorld</code>](#module_World.BatWorld)  
 <a name="module_World.BatWorld+retrieveResponse"></a>
