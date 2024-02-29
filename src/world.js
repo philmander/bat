@@ -27,7 +27,7 @@ const { version } = packageJson
 
 const agents = new Map();
 const responseCache = new Map();
-const getResponseCacheKey = (path, method, status) => `${path};${method};${status}`;
+const getResponseCacheKey = (path, method) => `${path};${method}`;
 
 let apiSepc = null
 
@@ -274,8 +274,7 @@ export class BatWorld extends World {
      */
     async saveResponse(req, res) {
         const { url, method } = req
-        const status = res.status.toString()
-        const cacheKey = getResponseCacheKey((this.originalUrl || url).split('?')[0], method, status)
+        const cacheKey = getResponseCacheKey((this.originalUrl || url).split('?')[0], method)
         responseCache.set(cacheKey, res.body)
     }
 
@@ -285,8 +284,8 @@ export class BatWorld extends World {
      * @param {*} method An HTTP method
      * @param {*} status The response status, defaults to 200
      */
-    retrieveResponse(resource, method, status = 200) {
-        return responseCache.get(getResponseCacheKey(resource, method, status))
+    retrieveResponse(resource, method) {
+        return responseCache.get(getResponseCacheKey(resource, method))
     }
 }
 
