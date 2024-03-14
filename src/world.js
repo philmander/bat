@@ -12,14 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { readFileSync } from 'fs'
-import { isAbsolute, join, resolve } from 'path'
-import { parse as parseUrl } from 'url'
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 
 import { World } from '@cucumber/cucumber'
 import chalk from 'chalk'
 import request from 'superagent'
-import SwaggerParser from 'swagger-parser'
 
 const fileUrl = new URL('../package.json', import.meta.url)
 const packageJson = JSON.parse(readFileSync(fileUrl, 'utf8'))
@@ -27,9 +25,8 @@ const { version } = packageJson
 
 const agents = new Map();
 const responseCache = new Map();
+const fileCache = new Map()
 const getResponseCacheKey = (path, method) => `${path};${method}`;
-
-let apiSepc = null
 
 /** @module World */
 
@@ -53,7 +50,7 @@ export class BatWorld extends World {
         }
 
         const envFile = process.env.ENV_FILE || null
-        this.envVars = envFile ? JSON.parse(readFileSync(resolve(process.cwd(), envFile))).values : []
+        this.envVars = envFile ? JSON.parse(readFileSync(resolve(envFile))).values : []
         this.env = process.env.TEST_ENV || null
         this.responseVars = []
         this.userVars = []
@@ -87,16 +84,6 @@ export class BatWorld extends World {
         // TODO: make this configurable
         val.timeout({ response: 60000, deadline: 90000 })
         this._req = val
-    }
-
-    /**
-     * Getter for the full Open API spec
-     */
-    get apiSpec() {
-        if (!apiSepc) {
-            throw new Error('No API spec is loaded. This assertion cannot be performed.')
-        }
-        return apiSepc
     }
 
     get latencyBuffer() {
@@ -145,30 +132,6 @@ export class BatWorld extends World {
     setAgentByRole(role, agent) {
         this._currentAgent = agent
         agents.set(role, agent)
-    }
-
-    /**
-     * Get part of the Open API spec for just a single endpoint (resource + method)
-     */
-    async getEndpointSpec() {
-        const { originalUrl, url, method } = this.req
-        let { pathname } = parseUrl(originalUrl || url)
-        pathname = decodeURI(pathname)
-
-        // we want to keep variables in the pathname so they can be looked up,
-        // but need to remove the host name variable if any:
-        if (!pathname.startsWith('/')) {
-            const tmpParts = pathname.split('/')
-            tmpParts.shift()
-            pathname = `/${tmpParts.join('/')}`.trim()
-        }
-
-        try {
-            return this.apiSpec.paths[pathname][method.toLowerCase()]
-        } catch (err) {
-            console.warn(`Could not find "${method.toLowerCase()}:${pathname}" in the provided api spec (${err.message})`)
-            return {}
-        }
     }
 
     async setBasicAuth(credentials) {
@@ -268,7 +231,6 @@ export class BatWorld extends World {
         this.saveResponse(this.req, await this.getResponse())
     }
 
-
     /**
      * Save a response so its values can be used for future requests
      */
@@ -286,6 +248,33 @@ export class BatWorld extends World {
      */
     retrieveResponse(resource, method) {
         return responseCache.get(getResponseCacheKey(resource, method))
+    }
+
+    /**
+     * Load a file from the local filesystem or HTTP. 
+     * Also caches the response for subsequent calls in the same test run
+     * @param {} path The file path or URL
+     */
+    async loadFile(path) {
+        if(fileCache.has(path)) {
+            return fileCache.get(path)
+        }
+
+        // get the file over http or filesystem
+        let content
+        if (/^https?:\/\//i.test(path)) {
+            const res = await fetch(path)
+            if (!res.ok) {
+                throw new Error(`Could not fetch "${path}: ${res.status}`)
+            }
+            content = await res.text();
+        } else {
+            content = readFileSync(path, 'utf8')
+        }
+
+        fileCache.set(path, content)
+
+        return content
     }
 }
 
@@ -330,24 +319,9 @@ async function printDebug(info) {
         }
 
     }
-}
+} 
 
-async function loadApiSpec() {
-    // load an open api spec
-    const specFile = process.env.API_SPEC_FILE || null
-    if (specFile) {
-        const specFilePath = isAbsolute(specFile) ? specFile : join(process.cwd(), specFile)
-        try {
-            apiSepc = await SwaggerParser.validate(specFilePath)
-            console.log(`API Spec loaded from: ${specFile}`)
-        } catch (err) {
-            console.warn(err.message)
-        }
-    }
-}
-
-export function registerHooks({ BeforeAll, Before, After }) {
-    BeforeAll(loadApiSpec)
+export function registerHooks({ Before, After }) {
     Before(reset)
     After(printDebug)
 }

@@ -12,22 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { readFile } from 'node:fs/promises';
-import { join } from 'path';
 
-//import Ajv from 'ajv';
+import { readFile } from 'node:fs/promises';
+import { join as joinPaths, resolve as resolvePath } from 'node:path';
+import { pathToFileURL } from 'node:url';
+
+import Ajv from 'ajv';
+import addFormats from 'ajv-formats'
 import * as chai from 'chai';
 import chaiMatch from 'chai-match';
 import cookie from 'cookie';
+import { load as loadYaml } from 'js-yaml'
 import { JSONPath } from 'jsonpath-plus';
-//import toJsonSchema from 'openapi-schema-to-json-schema';
 import ql from 'superagent-graphql';
 
-// const fileUrl = new URL('../node_modules/ajv/lib/refs/json-schema-draft-07.json', import.meta.url);
-// const draft07Schema = JSON.parse(readFileSync(fileUrl, 'utf8'));
-
-// const ajv = new Ajv({ schemaId: 'auto', unknownFormats: ['int32', 'int64', 'float'] });
-// ajv.addMetaSchema(draft07Schema);
+const ajv = new Ajv({ allErrors: true, strict: false});
+addFormats(ajv)
 
 export const noop = () => { }
 
@@ -57,7 +57,7 @@ function defaultContentType(contentType) {
 }
 
 async function filterValuesFromEnvFile(filePath, keyFilter) {
-    const envFile = await readFile(join(process.cwd(), filePath), { encoding: 'utf8'});
+    const envFile = await readFile(joinPaths(process.cwd(), filePath), { encoding: 'utf8'});
     return JSON.parse(envFile).values
         .filter(item => item.enabled && item.value && keyFilter.includes(item.key))
         .reduce((acc, { key, value }) => ({
@@ -153,7 +153,7 @@ function addRequestBody(body) {
 
 async function addRequestBodyFromFile(fileName) {
     //Read the json data from the file location
-    const body = await readFile(join(process.cwd(), fileName), { encoding: 'utf8'});
+    const body = await readFile(joinPaths(process.cwd(), fileName), { encoding: 'utf8'});
 
     // Read and send the json data
     _addRequestBody.call(this, body);
@@ -263,33 +263,42 @@ async function responseCookieEquals(expectedCookieData) {
     }
 }
 
-// Function used for asserting a response validates against a given schema
-// async function _validateResponseAgainstSchema(schema) {
-//     const validate = ajv.compile(toJsonSchema(schema));
-//     const { body } = await this.getResponse();
-//     const valid = validate(body);
+async function validateWithOpenAPISchema(schemaPath) {
+    // sp;it the input path
+    const schemaParts = this.replaceVars(schemaPath).split('#')
+    const basePath = resolvePath(schemaParts[0])
+    const ref = schemaParts[1]
 
-//     if (valid) {
-//         expect(valid).to.be.true;
-//     } else {
-//         expect.fail(null, null, JSON.stringify(validate.errors));
-//     }
-// }
+    const schema = await this.loadFile(basePath)
 
-// async function validateAgainstSpecSchema() {
-//     const spec = await this.getEndpointSpec();
-//     const { schema } = spec.responses['200'].content['application/json'];
-//     await _validateResponseAgainstSchema.call(this, schema);
-// }
+    // parse the json
+    let jsonSchema
+    try {
+        jsonSchema = JSON.parse(schema)
+    } catch(err) {
+        jsonSchema = loadYaml(schema)
+    }
 
-// async function validateAgainstInlineSchema(schema) {
-//     await _validateResponseAgainstSchema.call(this, JSON.parse(schema));
-// }
+    // validate against the schema
+    const schemaUri = pathToFileURL(basePath).href
+    try {
+        ajv.addSchema(jsonSchema, schemaUri)
+    } catch(err) {
+        if(!err.message.includes('already exists')) {
+            throw err
+        }
+    }
+    
+    const { body } = await this.getResponse()
+    const valid = ajv.validate({ '$ref': schemaUri + '#' + ref}, body)
 
-// async function validateAgainstFileSchema(filePath) {
-//     const schema = await readFileAsync(join(process.cwd(), this.replaceVars(filePath)), 'utf8');
-//     await _validateResponseAgainstSchema.call(this, JSON.parse(schema));
-// }
+    // report
+    if (valid) {
+        expect(valid).to.be.true;
+    } else {
+        expect.fail(null, null, JSON.stringify(ajv.errors, null, '  '));
+    }
+}
 
 export {
     defaultContentType,
@@ -317,7 +326,5 @@ export {
     responseBodyJsonPathMatches,
     responseBodyJsonPathIsEmpty,
     responseCookieEquals,
-    //validateAgainstSpecSchema,
-    //validateAgainstInlineSchema,
-    //validateAgainstFileSchema,
+    validateWithOpenAPISchema,
 };

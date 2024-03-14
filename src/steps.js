@@ -419,53 +419,23 @@ function registerSteps({ Given, When, Then }) {
     Then('response sets cookie:', fn.responseCookieEquals);
 
     /**
-     * Then validate against schema
+     * ### Then validate with OpenAPI schema: {string}
      *
-     * This will extract the response body json schemea from the Open API spec and
-     * validate the current response body against it
-     *
-     * @example 
-     * Then validate against schema
-     *
-     * @function validateAgainstSpecSchema
-     */
-    //Then('validate against schema', fn.validateAgainstSpecSchema);
-
-    /**
-     * ### Then validate against schema:
-     *
-     * This allows you to provide an inline response schema to validate the current
-     * response body against. Generally not recommend because this can make the
-     * feature file very verbose.
-     *
-     * @example
-     * Then validate against the schema:
-     * """
-     * { ... }
-     * """
-     *
-     * @function validateAgainstInlineSchema
-     */
-    //Then('validate against the schema:', fn.validateAgainstInlineSchema);
-
-    /**
-     * Then validate against the schema from {string}
-     *
-     * This will load a response body json schemea from a file
+     * Loads the Open API schema from a local file and validates the response body using it
      *
      * @example 
-     * Then validate against the schema from "./path/to/schema.json"
+     * Then validate with schema: "./path/to/schema.json#/components/schemas/Pets"
      *
-     * @function validateAgainstFileSchema
+     * @function validateWithOpenAPISchema
      */
-    //Then('validate against the schema from {string}', fn.validateAgainstFileSchema);
+    Then('validate with OpenAPI schema: {string}', fn.validateWithOpenAPISchema);
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
     // Some debug helpers
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
-     * Then print the request
+     * ### Then print the request
      *
      * Debug step which prints the request that SuperAgent will send
      *
@@ -483,7 +453,7 @@ function registerSteps({ Given, When, Then }) {
     });
 
     /**
-     * Then print the response body
+     * ### Then print the response body
      *
      * Debug step that will print the received response body.
      *
