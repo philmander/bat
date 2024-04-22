@@ -146,7 +146,7 @@ export class BatWorld extends World {
      * @param {*} url The full token url ()
      * @param {*} credentials
      */
-    async getOAuthAccessToken(url, credentials, type = 'json') {
+    async getOAuthAccessToken(url, credentials) {
         const agent = this.currentAgent
 
         // do an oauth2 login
@@ -154,7 +154,7 @@ export class BatWorld extends World {
         if (!agent._bat.bearer) {
             const res = await agent
                 .post(this.baseUrl + this.replaceVars(url))
-                .type(type)
+                .type('application/x-www-form-urlencoded')
                 .send(this.replaceVars(credentials))
 
                 this.saveResponse({ method: 'POST', url }, res)
