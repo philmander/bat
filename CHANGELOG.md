@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.1.3](https://github.com/philmander/bat/compare/v2.1.2...v2.1.3) (2024-04-22)
+
+
+### Bug Fixes
+
+* Make OAuth requests use "application/x-www-form-urlencoded" request type ([bf16e0c](https://github.com/philmander/bat/commit/bf16e0c6b59ed5a108b284e54b756927c4878093))
+
 ### [2.1.2](https://github.com/philmander/bat/compare/v2.1.1...v2.1.2) (2024-03-14)
 
 ### [2.1.1](https://github.com/philmander/bat/compare/v2.1.0...v2.1.1) (2024-02-29)
